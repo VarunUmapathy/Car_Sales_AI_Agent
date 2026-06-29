@@ -1,0 +1,3 @@
+pydantic
+langchain
+langchain_groq
