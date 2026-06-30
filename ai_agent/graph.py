@@ -23,7 +23,7 @@ class SupervisorNode:
         response = await self.llm.ainvoke(messages)
         return {"messages": [response]}
 
-class LanggraphOrchestrator:
+class LangGraphOrchestrator:
     """Constructs and manages the LangGraph execution environment."""
     def __init__(self):
         self.mcp_client = MCPClientManager()
