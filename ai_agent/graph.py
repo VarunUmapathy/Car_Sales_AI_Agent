@@ -49,6 +49,7 @@ class LangGraphOrchestrator:
         )
         workflow.add_edge("tools", "supervisor")
         self.checkpointer = AsyncPostgresSaver(db_pool)
+        await self.checkpointer.setup()
         self.compiled_graph = workflow.compile(checkpointer =  self.checkpointer)
         return self.compiled_graph
     

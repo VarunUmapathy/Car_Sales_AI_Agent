@@ -3,14 +3,12 @@ import httpx
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, BackgroundTasks, Response
 from psycopg_pool import AsyncConnectionPool
-
-# Note: Adjust these imports if your linter prefers the relative '.' syntax
 from graph import LangGraphOrchestrator
 from agent_state import AgentState
 
 # Setup the DB Pool for the LangGraph Checkpointer
-DB_URI = os.getenv("DATABASE_URL", "postgresql://admin:123@pg_bouncer:6432/dealership_crm")
-db_pool = AsyncConnectionPool(DB_URI, max_size=20)
+DB_URI = os.getenv("DATABASE_URL", "postgresql://admin:123@postgres:5432/dealership_crm")
+db_pool = AsyncConnectionPool(DB_URI, max_size=20, open=False, kwargs={"autocommit": True})
 
 orchestrator = LangGraphOrchestrator()
 
@@ -23,10 +21,6 @@ async def lifespan(app: FastAPI):
     await db_pool.close()
 
 app = FastAPI(lifespan=lifespan)
-
-# ---------------------------------------------------------
-# FASTAPI ROUTES (Flattened out of the class)
-# ---------------------------------------------------------
 
 @app.get("/webhook/ai_agent")
 async def verify_webhook(request: Request):
@@ -42,20 +36,25 @@ async def verify_webhook(request: Request):
 
 @app.post("/webhook/ai_agent")
 async def receive_webhook(request: Request, background_tasks: BackgroundTasks):
-    """Receives WhatsApp messages from Meta."""
     payload = await request.json()
     
-    # Meta's payload structure is deeply nested; we'll assume a simplified extraction for now
-    # You will likely need to adjust this extraction logic based on Meta's exact JSON shape
-    session_id = payload.get("session_id", "default_user") 
-    text = payload.get("text", "")
-    
-    background_tasks.add_task(process_message, session_id, text)
-    return {"status": "processing"}
+    try:
+        entry = payload["entry"][0]
+        changes = entry["changes"][0]["value"]
+        if "statuses" in changes:
+            return {"status": "receipt_acknowledged"}
+            
+        message = changes["messages"][0]
+        session_id = message["from"] 
+        text = message["text"]["body"]
+        
+        background_tasks.add_task(process_message, session_id, text)
+        return {"status": "processing"}
+        
+    except (KeyError, IndexError):
+        print(f"Unhandled payload structure: {payload}")
+        return {"status": "ignored"}
 
-# ---------------------------------------------------------
-# BACKGROUND TASKS
-# ---------------------------------------------------------
 
 async def process_message(session_id: str, text: str):
     """Invokes the LangGraph orchestrator with the new message."""

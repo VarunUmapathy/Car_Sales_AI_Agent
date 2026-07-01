@@ -68,7 +68,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://admin:123@pg_bouncer:6432/dealership_crm
+      - DATABASE_URL=postgresql://admin:123@postgres:5432/dealership_crm
       - KAFKA_BROKER_URL=kafka:9092
       - GROQ_API_KEY=${GROQ_API_KEY}
       - WHATSAPP_ACCESS_TOKEN=${WHATSAPP_ACCESS_TOKEN}
