@@ -9,7 +9,7 @@ class HandoffInput(BaseModel):
     budget: float = Field(default = None, description="The customer's max budget.")
     preferred_model: str = Field(default=None, description="The car model they want.")
 
-class HandoffTool(BaseModel):
+class HandoffTool(BaseTool):
     """
     Triggers a handoff to a human agent and publishes the event to Kafka.
     """

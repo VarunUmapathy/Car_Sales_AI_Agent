@@ -7,7 +7,7 @@ from sqlalchemy import select
 from models import CarModel, InventoryUnit
 
 mcp = FastMCP("Dealership_Postgres_MCP")
-raw_dsn = os.getenv("DATABASE_URL")
+raw_dsn = os.getenv("DATABASE_URL", "postgresql://admin:123@pg_bouncer:6432/dealership_crm")
 db_url = raw_dsn.replace("postgresql://", "postgresql+asyncpg://", 1) if raw_dsn.startswith("postgresql://") else raw_dsn
 
 engine = create_async_engine(db_url, echo = False)
@@ -46,7 +46,7 @@ async def get_car_models(make: str = None) -> str:
     except Exception as e:
         return f"Database error: {str(e)}"
     
-@mcp.tools()
+@mcp.tool()
 async def check_inventory(model_name: str, color: str = None, max_price: float = None) -> str:
     """
     Check the physical metal on the dealership lot.

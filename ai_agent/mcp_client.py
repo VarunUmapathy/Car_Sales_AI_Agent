@@ -13,7 +13,7 @@ class MCPClientManager:
     def __init__(self):
         self.mcp_server_endpoints = [
             StdioServerParameters(
-                command = "Python",
+                command = "python3",
                 args = ["-u", "/app/mcp_servers/postgres_mcp/main.py"]
             )
         ]
@@ -39,7 +39,7 @@ class MCPClientManager:
                 langchain_tools.append(self._create_langchain_tool(session, mcp_tool))
         return langchain_tools
     
-    async def _create_langchain_tool(self, session: ClientSession, mcp_tool: Any) -> StructuredTool:
+    def _create_langchain_tool(self, session: ClientSession, mcp_tool: Any) -> StructuredTool:
             """Helper to convert an MCP Tool definition into a LangChain callable tool."""
             async def _execute_mcp_tool(**kwargs) -> str:
                 result = await session.call_tool(mcp_tool.name, arguements = kwargs)

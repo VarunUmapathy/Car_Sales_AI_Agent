@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgis/postgis:15-3.3
@@ -18,29 +16,91 @@ services:
     restart: unless-stopped
 
   pg_bouncer:
-    image: bitnamilegacy/pgbouncer:1.24.0
+    image: edoburu/pgbouncer:latest
     container_name: crm_pgbouncer
     environment: 
-      POSTGRESQL_HOST: postgres
-      POSTGRESQL_PORT: 5432
-      POSTGRESQL_USER: admin
-      POSTGRESQL_PASSWORD: 123
-      POSTGRESQL_DATABASE: dealership_crm
-
-      PGBOUNCER_DATABASE: dealership_crm
-      PGBOUNCER_POOL_MODE: transaction # maybe statement pooling?
-      PGBOUNCER_MAX_CLIENT_CONN: 1000
-      PGBOUNCER_DEFAULT_POOL_SIZE: 20
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=admin
+      - DB_PASS=123
+      - DB_NAME=dealership_crm
+      - POOL_MODE=transaction
+      - MAX_CLIENT_CONN=1000
+      - DEFAULT_POOL_SIZE=20
+      - AUTH_TYPE=scram-sha-256
     ports:
      - "6432:6432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432 || exit 1"]
+      interval: 5s
+      timeout: 3s
     depends_on:
       - postgres
     networks:
       - crm_network
     restart: unless-stopped
 
+  kafka:
+    image: bitnamilegacy/kafka:latest
+    container_name: crm_kafka
+    environment:
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/bitnami/kafka
+    networks:
+      - crm_network
+    restart: unless-stopped
+  
+  ai_agent:
+    build:
+      context: ./ai_agent
+      dockerfile: Dockerfile
+    container_name: crm_ai_agent
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://admin:123@pg_bouncer:6432/dealership_crm
+      - KAFKA_BROKER_URL=kafka:9092
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - WHATSAPP_ACCESS_TOKEN=${WHATSAPP_ACCESS_TOKEN}
+      - WHATSAPP_PHONE_ID=${WHATSAPP_PHONE_ID}
+    volumes:
+      - ./mcp_servers:/app/mcp_servers
+    depends_on:
+      - pg_bouncer
+      - kafka
+    networks:
+      - crm_network
+    restart: unless-stopped
+
+  #nginx_gateway:
+  #  image: nginx:alpine
+  #  container_name: crm_api_gateway
+  # ports:
+  #    - "80:80"
+  #    - "443:443"
+  #  volumes:
+  #    - ./api_gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+  #    - ./api_gateway/ssl:/etc/nginx/ssl:ro
+  #  depends_on:
+  #    - crm_api
+  #    - ai_agent
+  #  networks:
+  #    - crm_network
+  #  restart: unless-stopped
+    
 volumes:
   pg_data:
+  kafka_data:
 
 networks:
   crm_network: 

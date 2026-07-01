@@ -5,15 +5,15 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
-from .agent_state import AgentState
-from .mcp_client import MCPClientManager
-from .tools.handoff_tool import HandoffTool
+from agent_state import AgentState
+from mcp_client import MCPClientManager
+from tools.handoff_tool import HandoffTool
 
 class SupervisorNode:
     """The core reasoning node that executes the LLM."""
     def __init__(self, llm: ChatGroq, tools: list):
-        self.llm = llm.bind_with_tools(tools)
-        with open("example.txt", "r") as file:
+        self.llm = llm.bind_tools(tools)
+        with open("System_instructions.txt", "r") as file:
             self.system_prompt = file.read()
 
     async def __call__(self, state: AgentState) -> dict:
