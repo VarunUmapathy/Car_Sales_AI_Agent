@@ -1,7 +1,7 @@
 import os
 import httpx
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, BackgroundTasks, Response
+from fastapi import FastAPI, Request, BackgroundTasks, Response, Form
 from psycopg_pool import AsyncConnectionPool
 from graph import LangGraphOrchestrator
 from agent_state import AgentState
@@ -36,24 +36,13 @@ async def verify_webhook(request: Request):
 
 @app.post("/webhook/ai_agent")
 async def receive_webhook(request: Request, background_tasks: BackgroundTasks):
-    payload = await request.json()
-    
-    try:
-        entry = payload["entry"][0]
-        changes = entry["changes"][0]["value"]
-        if "statuses" in changes:
-            return {"status": "receipt_acknowledged"}
-            
-        message = changes["messages"][0]
-        session_id = message["from"] 
-        text = message["text"]["body"]
-        
-        background_tasks.add_task(process_message, session_id, text)
-        return {"status": "processing"}
-        
-    except (KeyError, IndexError):
-        print(f"Unhandled payload structure: {payload}")
+    form_data = await request.form()
+    session_id = form_data.get("From") 
+    text = form_data.get("Body")
+    if not session_id or not text:
         return {"status": "ignored"}
+    background_tasks.add_task(process_message, session_id, text)
+    return Response(content="<Response></Response>", media_type="application/xml")
 
 
 async def process_message(session_id: str, text: str):
@@ -77,24 +66,22 @@ async def process_message(session_id: str, text: str):
 
 async def send_whatsapp_message(phone_number: str, text: str):
     """Fires an HTTP POST request to the Meta Graph API."""
-    whatsapp_token = os.getenv("WHATSAPP_ACCESS_TOKEN")
-    phone_number_id = os.getenv("WHATSAPP_PHONE_ID")
-    
-    url = f"https://graph.facebook.com/v17.0/{phone_number_id}/messages"
-    headers = {
-        "Authorization": f"Bearer {whatsapp_token}",
-        "Content-Type": "application/json"
-    }
+    account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+    auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+    twilio_number = "whatsapp:+14155238886"
+    url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
     payload = {
-        "messaging_product": "whatsapp",
-        "to": phone_number,
-        "type": "text",
-        "text": {"body": text}
+        "From": twilio_number,
+        "To": phone_number,
+        "Body": text
     }
-    
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.post(url, headers=headers, json=payload)
+            response = await client.post(
+                url, 
+                auth=(account_sid, auth_token), 
+                data=payload
+            )
             response.raise_for_status()
         except httpx.HTTPStatusError as e:
-            print(f"Failed to send WhatsApp message: {e.response.text}")
+            print(f"Failed to send WhatsApp message via Twilio: {e.response.text}") 

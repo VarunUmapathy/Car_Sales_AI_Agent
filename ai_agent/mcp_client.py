@@ -42,7 +42,7 @@ class MCPClientManager:
     def _create_langchain_tool(self, session: ClientSession, mcp_tool: Any) -> StructuredTool:
             """Helper to convert an MCP Tool definition into a LangChain callable tool."""
             async def _execute_mcp_tool(**kwargs) -> str:
-                result = await session.call_tool(mcp_tool.name, arguements = kwargs)
+                result = await session.call_tool(mcp_tool.name, arguments = kwargs)
                 return "\n".join([content.text for content in result.content if hasattr(content, 'text')])
 
             return StructuredTool.from_function(
