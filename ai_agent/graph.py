@@ -35,7 +35,7 @@ class LangGraphOrchestrator:
         await self.mcp_client.connect_to_servers()
         mcp_tools = await self.mcp_client.discover_tools()
         all_tools = mcp_tools + [self.handoff_tool]
-        llm = ChatGroq(model_name="llama-3.3-70b-versatile", temperature=0)
+        llm = ChatGroq(model_name="llama-3.1-8b-instant", temperature=0)
         self.supervisor = SupervisorNode(llm, all_tools)
 
         workflow = StateGraph(AgentState)

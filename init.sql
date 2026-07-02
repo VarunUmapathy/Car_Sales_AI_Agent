@@ -1,3 +1,6 @@
+-- ====================================================================
+-- 1. CREATE ENUMS & EXTENSIONS
+-- ====================================================================
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 CREATE TYPE transmission_type AS ENUM ('Manual', 'Automatic', 'Hybrid');
@@ -8,6 +11,10 @@ CREATE TYPE payment_mode AS ENUM ('Bank transfer', 'Demand Draft', 'Credit Card'
 CREATE TYPE agent_role AS ENUM ('Sales Agent', 'Manager');
 CREATE TYPE chat_status AS ENUM ('BOT_ACTIVE', 'HUMAN_REQUESTED', 'HUMAN_ACTIVE', 'RESOLVED');
 CREATE TYPE message_sender AS ENUM ('USER', 'BOT', 'AGENT');
+
+-- ====================================================================
+-- 2. CREATE TABLES
+-- ====================================================================
 
 CREATE TABLE car_models (
     model_id VARCHAR(50) PRIMARY KEY,
@@ -86,18 +93,24 @@ CREATE TABLE messages (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ====================================================================
+-- 3. INSERT DUMMY DATA FOR AI TESTING
+-- ====================================================================
+
 INSERT INTO dealerships (dealer_id, dealer_name, city, coordinate) VALUES
 ('dlr_001', 'Downtown Honda', 'New York', ST_GeogFromText('SRID=4326;POINT(-74.0060 40.7128)')),
 ('dlr_002', 'Westside Toyota', 'Los Angeles', ST_GeogFromText('SRID=4326;POINT(-118.2437 34.0522)'));
 
+-- FIXED: Added dummy brochure URLs to match the 7 declared columns
 INSERT INTO car_models (model_id, make, model_name, transmission, year, Ex_Showroom_price, brochere_url) VALUES
-('mod_honda_01', 'Honda', 'Civic', 'Automatic', 2024, 24000.00),
-('mod_toyota_01', 'Toyota', 'RAV4', 'Hybrid', 2024, 32000.00);
+('mod_honda_01', 'Honda', 'Civic', 'Automatic', 2024, 24000.00, 'https://example.com/civic.pdf'),
+('mod_toyota_01', 'Toyota', 'RAV4', 'Hybrid', 2024, 32000.00, 'https://example.com/rav4.pdf');
 
+-- FIXED: Added dummy image URLs to match the 6 declared columns
 INSERT INTO inventory (vin, model_id, color, status, dealer_id, image_url) VALUES
-('VIN1HGCM823456781', 'mod_honda_01', 'Blue', 'IN_STOCK', 'dlr_001'),
-('VIN1HGCM823456782', 'mod_honda_01', 'Red', 'IN_STOCK', 'dlr_001'),
-('VINJTMBVD34567891', 'mod_toyota_01', 'White', 'IN_TRANSIT', 'dlr_002');
+('VIN1HGCM823456781', 'mod_honda_01', 'Blue', 'IN_STOCK', 'dlr_001', 'https://example.com/civic_blue.jpg'),
+('VIN1HGCM823456782', 'mod_honda_01', 'Red', 'IN_STOCK', 'dlr_001', 'https://example.com/civic_red.jpg'),
+('VINJTMBVD34567891', 'mod_toyota_01', 'White', 'IN_TRANSIT', 'dlr_002', 'https://example.com/rav4_white.jpg');
 
 INSERT INTO agents (agent_id, email, name, role) VALUES
 ('agt_001', 'sarah@dealership.com', 'Sarah Connor', 'Sales Agent');

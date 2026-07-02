@@ -12,7 +12,7 @@ class CarModel(Base):
     model_name: Mapped[str] = mapped_column(String(100))
     transmission: Mapped[str] = mapped_column(String(50))
     year: Mapped[int] = mapped_column(Integer)
-    Ex_Showroom_price: Mapped[float] = mapped_column(Numeric(10, 2))
+    Ex_Showroom_price: Mapped[float] = mapped_column("ex_showroom_price", Numeric(10, 2))
     brochere_url: Mapped[str] = mapped_column(String(255), nullable=True)
 
 class InventoryUnit(Base):

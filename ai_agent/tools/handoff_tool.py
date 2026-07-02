@@ -37,9 +37,13 @@ class HandoffTool(BaseTool):
     
     async def _publish_to_broker(self, topic: str, payload: dict):
         producer =  AIOKafkaProducer(bootstrap_servers = self.broker_url)
-        await producer.start()
         try:
-            message_bytes = json.dumps(payload).encode('utf-8')
-            await producer.send_and_wait(topic, message_bytes)
+            await producer.start()
+            value_bytes = __import__('json').dumps(payload).encode('utf-8')
+            await producer.send_and_wait(topic, value_bytes)
+            print(f"Successfully published handoff to Kafka topic: {topic}")
+            return "SUCCESS: Handoff complete. The human agent has taken over. Do not generate any further response."
+        except Exception as e:
+            print(f"Warning: Kafka is unreachable. Handoff event dropped. Error: {e}")
         finally:
             await producer.stop()
