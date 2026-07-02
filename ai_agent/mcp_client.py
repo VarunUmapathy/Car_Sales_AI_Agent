@@ -15,6 +15,10 @@ class MCPClientManager:
             StdioServerParameters(
                 command = "python3",
                 args = ["-u", "/app/mcp_servers/postgres_mcp/main.py"]
+            ),
+            StdioServerParameters(
+                command="python3",
+                args=["-u", "/app/mcp_servers/custom_rag_mcp/main.py"]
             )
         ]
         self.sessions: List[ClientSession] = []

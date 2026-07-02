@@ -22,7 +22,7 @@ async def main():
     print("="*50 + "\n")
     
     # Use a dummy session ID for local testing
-    session_id = "langsmith_test_user_05"
+    session_id = "langsmith_test_user_06"
     
     try:
         while True:
