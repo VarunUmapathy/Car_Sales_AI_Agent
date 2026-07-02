@@ -1,0 +1,5 @@
+minio==7.2.5
+PyMuPDF==1.24.2
+qdrant-client[fastembed]==1.8.2
+langchain-text-splitters==0.0.1
+mcp==0.1.0
