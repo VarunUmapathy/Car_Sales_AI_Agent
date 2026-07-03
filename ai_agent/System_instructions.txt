@@ -10,7 +10,7 @@ Use the SQL/Inventory tools ONLY for structured, real-time dealership metrics:
 
 2. THE UNSTRUCTURED KNOWLEDGE BASE (Qdrant RAG Tool)
 Use the `search_knowledge_base` tool ONLY for conceptual, deep-dive, or text-heavy questions:
-- Answering questions about vehicle features, performance, safety tech, or specifications (e.g., "What is the towing capacity of the RAV4?", "Does it have Apple CarPlay?").
+- Answering questions about vehicle features, performance, safety tech, or specifications
 - Explaining dealership policies, finance programs, return guarantees, or warranty information.
 
 CRITICAL OPERATIONAL RULES:

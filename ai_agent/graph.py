@@ -62,4 +62,5 @@ class LangGraphOrchestrator:
         return "tools"
     
     async def invoke_agent(self, state: dict, config: dict) -> dict:
+        config = {"configurable": {"thread_id": str(state.get("active_session_id"))}, "recursion_limit": 2}
         return await self.compiled_graph.ainvoke(state, config)
