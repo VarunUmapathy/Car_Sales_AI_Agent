@@ -35,7 +35,7 @@ class LangGraphOrchestrator:
         await self.mcp_client.connect_to_servers()
         mcp_tools = await self.mcp_client.discover_tools()
         all_tools = mcp_tools + [self.handoff_tool]
-        llm = ChatGroq(model_name="llama-3.1-8b-instant", temperature=0)
+        llm = ChatGroq(model_name="meta-llama/llama-4-scout-17b-16e-instruct", temperature=0)
         self.supervisor = SupervisorNode(llm, all_tools)
 
         workflow = StateGraph(AgentState)
@@ -62,5 +62,5 @@ class LangGraphOrchestrator:
         return "tools"
     
     async def invoke_agent(self, state: dict, config: dict) -> dict:
-        config = {"configurable": {"thread_id": str(state.get("active_session_id"))}, "recursion_limit": 2}
+        config = {"configurable": {"thread_id": str(state.get("active_session_id"))}, "recursion_limit": 8}
         return await self.compiled_graph.ainvoke(state, config)

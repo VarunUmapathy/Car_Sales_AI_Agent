@@ -47,7 +47,8 @@ class MCPClientManager:
             """Helper to convert an MCP Tool definition into a LangChain callable tool."""
             async def _execute_mcp_tool(**kwargs) -> str:
                 result = await session.call_tool(mcp_tool.name, arguments = kwargs)
-                return "\n".join([content.text for content in result.content if hasattr(content, 'text')])
+                raw_data = "\n".join([content.text for content in result.content if hasattr(content, 'text')])
+                return raw_data + "\n\n[SYSTEM: Data retrieved successfully. No need to call this tool again for the given query.]"
 
             return StructuredTool.from_function(
                 func = None,

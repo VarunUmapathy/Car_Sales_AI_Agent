@@ -1,0 +1,53 @@
+syntax = "proto3";
+package dealership.v1;
+
+// =====================================================================
+// AUTHENTICATION SERVICE (Auth Pod)
+// =====================================================================
+
+service AuthService {
+  // Validates a raw Auth0 JWT and returns the internal CRM user profile
+  rpc ValidateToken (TokenRequest) returns (UserProfile);
+  
+  // Checks if a specific agent has the required role to perform an action
+  rpc CheckAgentPermissions (PermissionRequest) returns (PermissionResponse);
+  
+  // Fetches public details about an agent (e.g., for assigning a chat)
+  rpc GetAgentProfile (AgentRequest) returns (AgentProfile);
+}
+
+message TokenRequest {
+  string token = 1;
+}
+
+message UserProfile {
+  string agent_id = 1;
+  string sso_user_id = 2;
+  string email = 3;
+  string name = 4;
+  string role = 5;
+  bool is_valid = 6;
+  string error_message = 7; // Populated if is_valid is false
+}
+
+message PermissionRequest {
+  string agent_id = 1;
+  string required_role = 2;
+}
+
+message PermissionResponse {
+  bool has_permission = 1;
+}
+
+message AgentRequest {
+  string agent_id = 1;
+}
+
+message AgentProfile {
+  string agent_id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;
+  bool is_online = 5;
+}
+
