@@ -1,0 +1,46 @@
+syntax = "proto3";
+package dealership.v1;
+
+service ChatService {
+  rpc GetSessionStatus (SessionRequest) returns (SessionStatusResponse);
+  rpc SaveHumanMessage (MessageRequest) returns (MessageResponse);
+  rpc UpdateSessionAgent (ClaimRequest) returns (ClaimResponse);
+}
+
+message SessionRequest {
+  string session_id = 1;
+}
+
+message SessionStatusResponse {
+  enum Status {
+    UNKNOWN = 0;
+    BOT_ACTIVE = 1;
+    HUMAN_REQUESTED = 2;
+    HUMAN_ACTIVE = 3;
+    RESOLVED = 4;
+  }
+  Status status = 1;
+  string assigned_agent_id = 2;
+}
+
+message MessageRequest {
+  string session_id = 1;
+  string agent_id = 2;
+  string message_text = 3;
+}
+
+message MessageResponse {
+  string message_id = 1;
+  bool success = 2;
+  string timestamp = 3;
+}
+
+message ClaimRequest {
+  string session_id = 1;
+  string agent_id = 2;
+}
+
+message ClaimResponse {
+  bool success = 1;
+  string error_message = 2;
+}

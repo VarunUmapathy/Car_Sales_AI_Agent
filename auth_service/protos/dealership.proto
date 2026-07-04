@@ -1,18 +1,9 @@
 syntax = "proto3";
 package dealership.v1;
 
-// =====================================================================
-// AUTHENTICATION SERVICE (Auth Pod)
-// =====================================================================
-
 service AuthService {
-  // Validates a raw Auth0 JWT and returns the internal CRM user profile
   rpc ValidateToken (TokenRequest) returns (UserProfile);
-  
-  // Checks if a specific agent has the required role to perform an action
   rpc CheckAgentPermissions (PermissionRequest) returns (PermissionResponse);
-  
-  // Fetches public details about an agent (e.g., for assigning a chat)
   rpc GetAgentProfile (AgentRequest) returns (AgentProfile);
 }
 

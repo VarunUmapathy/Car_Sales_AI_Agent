@@ -112,7 +112,7 @@ function main() {
             console.error("Failed to bind server:", err);
             return;
         }
-        console.log(`Auth gRPC Service running with Prisma on port ${port}`);
+        console.log(`Auth gRPC Service running on port ${port}`);
     });
 }
 
