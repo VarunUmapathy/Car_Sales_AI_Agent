@@ -1,0 +1,59 @@
+syntax = "proto3";
+package dealership.v1;
+
+service InventoryService {
+  rpc GetModelsList (ModelsListRequest) returns (ModelsListResponse);
+  rpc SearchInventory (InventorySearchRequest) returns (InventorySearchResponse);
+  rpc CheckAvailability (AvailabilityRequest) returns (InventoryUnit);
+  rpc UpdateUnitStatus (UpdateUnitRequest) returns (UpdateUnitResponse);
+}
+
+message ModelsListRequest {
+  string make_filter = 1; 
+}
+
+message ModelsListResponse {
+  repeated CarModel models = 1;
+}
+
+message CarModel {
+  string model_id = 1;
+  string make = 2;
+  string model_name = 3;
+  int32 year = 4;
+  double base_price = 5;
+  string brochure_url = 6;
+}
+
+message InventorySearchRequest {
+  string model_id = 1;
+  string color = 2; 
+  string status = 3; 
+}
+
+message InventorySearchResponse {
+  repeated InventoryUnit units = 1;
+}
+
+message AvailabilityRequest {
+  string vin = 1;
+}
+
+message InventoryUnit {
+  string vin = 1;
+  string model_id = 2;
+  string color = 3;
+  double actual_price = 4;
+  string status = 5; 
+  string image_url = 6;
+}
+
+message UpdateUnitRequest {
+  string vin = 1;
+  string new_status = 2; 
+}
+
+message UpdateUnitResponse {
+  bool success = 1;
+  string error_message = 2;
+}
