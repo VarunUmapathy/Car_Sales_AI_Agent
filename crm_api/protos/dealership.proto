@@ -88,6 +88,7 @@ message ClaimResponse {
 
 service InventoryService {
   rpc GetModelsList (ModelsListRequest) returns (ModelsListResponse);
+  rpc SearchInventory (InventorySearchRequest) returns (InventorySearchResponse);
   rpc CheckAvailability (AvailabilityRequest) returns (InventoryUnit);
   rpc UpdateUnitStatus (UpdateUnitRequest) returns (UpdateUnitResponse);
 }
@@ -107,6 +108,16 @@ message CarModel {
   int32 year = 4;
   double base_price = 5;
   string brochure_url = 6;
+}
+
+message InventorySearchRequest {
+  string model_id = 1;
+  string color = 2; 
+  string status = 3; 
+}
+
+message InventorySearchResponse {
+  repeated InventoryUnit units = 1;
 }
 
 message AvailabilityRequest {

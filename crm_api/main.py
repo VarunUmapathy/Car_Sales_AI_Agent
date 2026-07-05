@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from aiokafka import AIOKafkaConsumer
 from dotenv import load_dotenv
+
 from protos import dealership_pb2
 from protos import dealership_pb2_grpc
 
@@ -66,13 +67,13 @@ app.add_middleware(
 )
 
 @app.get("/api/inventory/search")
-async def search_inventory(model_id: str = "", color: str = ""):
+async def search_inventory(model_id: str = "", color: str = "", status: str = ""):
     """REST endpoint that translates an HTTP GET into a gRPC call to the Inventory Pod."""
     try:
         req = dealership_pb2.InventorySearchRequest(
             model_id=model_id,
             color=color,
-            status="IN_STOCK"
+            status=status
         )
         response = await grpc_stubs['inventory'].SearchInventory(req)
         return {

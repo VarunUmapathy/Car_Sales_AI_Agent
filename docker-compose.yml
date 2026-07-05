@@ -130,6 +130,61 @@ services:
       - crm_network
     restart: unless-stopped
 
+  auth_service:
+    build: ./auth_service
+    container_name: crm_auth_service
+    environment:
+      - DATABASE_URL=postgresql://admin:123@postgres:5432/dealership_crm
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - PORT=${AUTH_PORT}
+    depends_on:
+      - pg_bouncer
+    networks:
+      - crm_network
+    restart: unless-stopped
+
+  inventory_service:
+    build: ./inventory_service
+    container_name: crm_inventory_service
+    environment:
+      - DATABASE_URL=postgresql://admin:123@postgres:5432/dealership_crm
+      - PORT=${INVENTORY_PORT}
+    depends_on:
+      - pg_bouncer
+    networks:
+      - crm_network
+    restart: unless-stopped
+
+  chat_service:
+    build: ./chat_service
+    container_name: crm_chat_service
+    environment:
+      - DATABASE_URL=postgresql://admin:123@postgres:5432/dealership_crm
+      - PORT=${CHAT_PORT}
+    depends_on:
+      - pg_bouncer
+    networks:
+      - crm_network
+    restart: unless-stopped
+  crm_api:
+    build: ./crm_api
+    container_name: crm_api_gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - AUTH_SERVICE_URL=auth_service:50051
+      - INVENTORY_SERVICE_URL=inventory_service:50052
+      - CHAT_SERVICE_URL=chat_service:50053
+      - KAFKA_BROKER_URL=kafka:9092
+    depends_on:
+      - auth_service
+      - inventory_service
+      - chat_service
+      - kafka
+    networks:
+      - crm_network
+    restart: unless-stopped
+
 volumes:
   pg_data:
   kafka_data:
