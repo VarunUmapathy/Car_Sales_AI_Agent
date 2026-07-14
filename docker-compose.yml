@@ -136,6 +136,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://admin:123@postgres:5432/dealership_crm
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
       - PORT=${AUTH_PORT}
     depends_on:
       - pg_bouncer
